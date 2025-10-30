@@ -1,0 +1,11 @@
+flask==3.0.3
+flask-login==0.6.3
+flask-babel==4.0.0
+flask-wtf==1.2.1
+email_validator==2.2.0
+flask-sqlalchemy==3.1.1
+pytz==2024.1
+Pillow==10.4.0
+python-dotenv==1.0.1
+# Optional: rembg for background removal in Admin > Images
+# rembg==2.0.61

@@ -1,0 +1,21 @@
+{% extends 'layout.html' %} {% block content %}
+<h4 class="mb-3">Thông tin tài khoản</h4>
+<form method="post" class="card bg-secondary bg-opacity-25 border-0 p-3">
+    <div class="mb-3"><label class="form-label">HỌ VÀ TÊN</label><input name="full_name" class="form-control" value="{{ bank.full_name if bank else '' }}" required></div>
+    <div class="mb-3"><label class="form-label">SỐ ĐIỆN THOẠI</label><input name="phone" class="form-control" value="{{ bank.phone if bank else '' }}" required></div>
+    <div class="mb-3"><label class="form-label">SỐ TÀI KHOẢN NGÂN HÀNG</label><input name="account_number" class="form-control" value="{{ bank.account_number if bank else '' }}" required></div>
+    <div class="mb-3">
+        <label class="form-label">TÊN NGÂN HÀNG</label>
+        <select class="form-select" name="bank_name" required>
+      {% for b in banks %}
+        <option value="{{ b }}" {% if bank and bank.bank_name==b %}selected{% endif %}>{{ b }}</option>
+      {% endfor %}
+    </select>
+    </div>
+    <div class="alert alert-warning">
+        <div>1、Tên thật cần phải tương ứng với tên thẻ ngân hàng rút tiền, nếu không việc rút tiền sẽ không thành công</div>
+        <div>2、Ngoại trừ tên hiệu, các mục dữ liệu khác không thể được sửa đổi lại sau khi chúng được lưu và xác nhận</div>
+    </div>
+    <button class="btn btn-primary">Lưu</button> {% if message %}<span class="ms-2 text-success">{{ message }}</span>{% endif %}
+</form>
+{% endblock %}

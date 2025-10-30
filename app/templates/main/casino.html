@@ -1,0 +1,13 @@
+{% extends 'layout.html' %} {% block content %}
+<h4 class="mb-3">CASINO</h4>
+<div class="row g-3">
+    {% for g in games %}
+    <div class="col-4">
+        <a class="game-card" href="{{ url_for('betting.bet_page', game_key=g.key) }}">
+            <div class="game-logo" style="background-image: url({{ (g.icon_path or url_for('static', filename='img/placeholder_game.webp')) | tojson }});"></div>
+            <div class="game-title">{{ g.name_vi }}</div>
+        </a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

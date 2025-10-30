@@ -1,0 +1,45 @@
+{% extends 'admin/layout.html' %} {% block content %}
+<h4 class="mb-3">Tỷ lệ trò chơi</h4>
+<form method="post" class="card bg-secondary bg-opacity-25 border-0 p-3">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="table-responsive">
+        <table class="table table-dark table-striped">
+            <thead>
+                <tr>
+                    <th>Tên</th>
+                    <th>Icon</th>
+                    <th>1.98</th>
+                    <th>2.1</th>
+                    <th>Bật</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for g in games %}
+                <tr>
+                    <td class="align-middle">{{ g.name_vi }}</td>
+                    <td style="min-width:260px;">
+                        <div class="d-flex align-items-center gap-2">
+                            <img src="{{ g.icon_path or url_for('static', filename='img/placeholder_game.webp') }}" alt="icon" style="width:38px;height:38px;border-radius:8px;object-fit:cover;border:1px solid #333;">
+                            <select class="form-select form-select-sm" name="icon_{{ g.id }}">
+                                <option value="">-- Giữ nguyên{% if not g.icon_path %} (đang trống){% endif %} --</option>
+                                {% for img in game_images %}
+                                <option value="{{ img.path }}" {% if g.icon_path==img.path %}selected{% endif %}>ID {{ img.id }} — {{ img.path }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-check ms-1">
+                                <input class="form-check-input" type="checkbox" id="clear_icon_{{ g.id }}" name="clear_icon_{{ g.id }}">
+                                <label class="form-check-label small" for="clear_icon_{{ g.id }}">Xóa</label>
+                            </div>
+                        </div>
+                    </td>
+                    <td><input class="form-control form-control-sm" name="odds_primary_{{ g.id }}" value="{{ '%.2f'|format(g.odds_primary) }}"></td>
+                    <td><input class="form-control form-control-sm" name="odds_secondary_{{ g.id }}" value="{{ '%.2f'|format(g.odds_secondary) }}"></td>
+                    <td><input class="form-check-input" type="checkbox" name="enabled_{{ g.id }}" {% if g.enabled %}checked{% endif %}></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <button class="btn btn-primary">Lưu</button>
+</form>
+{% endblock %}

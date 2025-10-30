@@ -1,0 +1,28 @@
+{% extends 'admin/layout.html' %} {% block content %}
+<h4 class="mb-3">Hậu đài - Dashboard</h4>
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="card bg-secondary bg-opacity-25 border-0 p-3 h-100">
+            <h5>Cài đặt chung</h5>
+            <div>Tên trang: <strong>{{ settings.site_name }}</strong></div>
+            <div>Màu chủ đạo: <span class="badge" style="background: {{ settings.primary_color }}">{{ settings.primary_color }}</span></div>
+            <div>Telegram CSKH: <a href="{{ settings.telegram_url }}" target="_blank">{{ settings.telegram_url }}</a></div>
+            <div class="small text-muted mt-2">Đi tới phần bên trái để thao tác.</div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card bg-secondary bg-opacity-25 border-0 p-3 h-100">
+            <h5>Quản lý trò chơi</h5>
+            <div class="small mb-2">Sửa tỷ lệ, bật/tắt từng trò.</div>
+            <div class="small text-muted">Đi tới phần bên trái để thao tác.</div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card bg-secondary bg-opacity-25 border-0 p-3 h-100">
+            <h5>Hình ảnh & Logo</h5>
+            <div class="small mb-2">Tải ảnh, xóa ảnh, xóa phông (nếu cài rembg).</div>
+            <div class="small text-muted">Đi tới phần bên trái để thao tác.</div>
+        </div>
+    </div>
+</div>
+{% endblock %}

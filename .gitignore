@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.python-version
+
+# Environments
+.venv/
+venv/
+ENV/
+
+# IDE/editor
+.vscode/
+.idea/
+*.code-workspace
+
+# Logs & cache
+*.log
+*.sqlite3
+*.sqlite
+.pytest_cache/
+.mypy_cache/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Builds
+build/
+dist/
+
+# Flask/Project specifics
+instance/
+app.db
+uploads/
+#+ Hidden plus folder causing git add error
++/ 

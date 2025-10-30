@@ -1,0 +1,51 @@
+{% extends 'layout.html' %} {% block content %} {% set settings = settings or None %}
+<div id="carouselAds" class="carousel slide mb-3" data-bs-ride="carousel">
+    <div class="carousel-inner">
+        {% if banners and banners|length > 0 %} {% for b in banners %}
+        <div class="carousel-item {% if loop.first %}active{% endif %}">
+            <img src="{{ b.image_path }}" class="d-block w-100 rounded" alt="banner {{ b.id }}">
+        </div>
+        {% endfor %} {% else %}
+        <div class="carousel-item active">
+            <img src="https://images.unsplash.com/photo-1467810563316-b5476525c0f9?q=80&w=1600&auto=format&fit=crop" class="d-block w-100 rounded" alt="Marina Bay Sands">
+            <div class="carousel-caption d-none d-md-block">
+                <h5>CASINO MARINA BAY SANDS</h5>
+                <p>Đẳng cấp - Hiện đại - Sôi động</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% if banners and banners|length > 1 %}
+    <button class="carousel-control-prev" type="button" data-bs-target="#carouselAds" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#carouselAds" data-bs-slide="next">
+      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Next</span>
+    </button> {% endif %}
+</div>
+
+<div class="row g-2 mb-3">
+    <div class="col-3"><a class="quick-btn" href="{{ url_for('main.deposit') }}">NẠP TIỀN</a></div>
+    <div class="col-3"><a class="quick-btn" href="{{ url_for('main.withdraw') }}">RÚT SỐ DƯ</a></div>
+    <div class="col-3"><a class="quick-btn" href="{{ url_for('main.history_bets') }}">LỊCH SỬ CƯỢC</a></div>
+    <div class="col-3"><a class="quick-btn" href="{{ url_for('main.account_info') }}">DỊCH VỤ TRỰC TUYẾN</a></div>
+</div>
+
+<h5 class="mb-2">Trò chơi</h5>
+<div class="row g-3">
+    {% for g in games %}
+    <div class="col-4">
+        <a class="game-card" href="{{ url_for('betting.bet_page', game_key=g.key) }}">
+            <div class="game-logo" style="background-image: url({{ (g.icon_path or url_for('static', filename='img/placeholder_game.webp')) | tojson }});"></div>
+            <div class="game-title">{{ g.name_vi }}</div>
+        </a>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="mt-3 ticker">
+    <span>Người chơi A vừa thắng $120 | Người chơi B lãi $75 | Người chơi C rút $300 thành công</span>
+</div>
+{% endblock %}

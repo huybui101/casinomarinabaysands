@@ -1,0 +1,55 @@
+{% extends 'layout.html' %} {% block content %}
+<h4 class="mb-3">Lịch sử cược</h4>
+<table class="table table-dark table-striped align-middle">
+    <thead>
+        <tr>
+            <th>Thời gian</th>
+            <th>Trò chơi</th>
+            <th>Vòng</th>
+            <th>Cửa</th>
+            <th>Tiền</th>
+            <th>KQ</th>
+            <th>Còn lại</th>
+            <th>Thanh toán</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for b in bets %}
+        <tr>
+            <td>{{ b.time }}</td>
+            <td>{{ b.game_name }}</td>
+            <td>{{ b.round_id }}</td>
+            <td>{{ b.selection }}</td>
+            <td>${{ '%.2f'|format(b.stake) }}</td>
+            <td>{{ b.status_label }}</td>
+            <td><span class="rem" data-remaining="{{ b.remaining }}">--:--</span></td>
+            <td>${{ '%.2f'|format(b.payout) }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<script>
+    // Simple multi-countdown for remaining time cells
+    (function() {
+        const spans = Array.from(document.querySelectorAll('span.rem'));
+
+        function tick() {
+            spans.forEach(sp => {
+                let t = parseInt(sp.dataset.remaining || '0');
+                if (isNaN(t)) t = 0;
+                if (t <= 0) {
+                    sp.textContent = '00:00';
+                    return;
+                }
+                const m = String(Math.floor(t / 60)).padStart(2, '0');
+                const s = String(Math.floor(t % 60)).padStart(2, '0');
+                sp.textContent = m + ':' + s;
+                sp.dataset.remaining = (t - 1).toString();
+            });
+            setTimeout(tick, 1000);
+        }
+        tick();
+    })();
+</script>
+{% endblock %}

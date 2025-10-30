@@ -1,0 +1,179 @@
+{% extends 'layout.html' %} {% block content %}
+<div class="d-flex align-items-center mb-3">
+    <a class="btn btn-outline-light btn-sm me-2" href="javascript:history.back()">&lt;</a>
+    <h5 class="mb-0">{{ game.name_vi }}</h5>
+    <a class="btn btn-sm btn-link ms-auto text-decoration-none" href="{{ url_for('main.history_bets') }}">Lịch sử cược</a>
+</div>
+
+<div class="round-info card border-0 mb-3">
+    <div class="balance-pill">$ {{ '%.2f'|format(current_user.balance) }}</div>
+    <div class="id gold">Mã vòng <span class="strong">{{ round_id }}</span></div>
+    <div class="grid mt-2">
+        <div>
+            <div class="label gold">Còn lại</div>
+            <div class="value" id="countdown">--:--</div>
+        </div>
+        <div>
+            <div class="label gold">Vòng #</div>
+            <div class="value gold">{{ slot }}</div>
+        </div>
+        <div>
+            <div class="label gold">Tiếp theo</div>
+            <div class="value gold">{{ next_round_id }} <span class="badge bg-secondary">CHỜ</span></div>
+        </div>
+        <div>
+            <div class="label gold">Chu kỳ</div>
+            <div class="value gold">10 phút (GMT+7)</div>
+        </div>
+    </div>
+</div>
+
+<form method="post" class="card bg-secondary bg-opacity-25 border-0 p-3">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <span id="_remain" data-remaining="{{ remaining }}" hidden></span>
+    <div class="row g-2">
+        {% for left,right in pairs %}
+        <div class="col-6">
+            <label class="w-100 bet-option">
+                <input type="checkbox" name="selection" value="{{ left[0] }}" data-pair="{{ loop.index0 }}" data-odds="{{ left[1] }}">
+                <div class="opt">{{ left[0] }} <span class="badge bg-warning text-dark">{{ left[1] }}</span></div>
+            </label>
+        </div>
+        <div class="col-6">
+            <label class="w-100 bet-option">
+                <input type="checkbox" name="selection" value="{{ right[0] }}" data-pair="{{ loop.index0 }}" data-odds="{{ right[1] }}">
+                <div class="opt">{{ right[0] }} <span class="badge bg-warning text-dark">{{ right[1] }}</span></div>
+            </label>
+        </div>
+        {% endfor %}
+
+        <div class="col-4">
+            <label class="w-100 bet-option">
+                <input type="checkbox" name="selection" value="{{ triplet[0][0] }}" data-pair="waves" data-odds="{{ triplet[0][1] }}">
+                <div class="opt">{{ triplet[0][0] }} <span class="badge bg-info text-dark">{{ triplet[0][1] }}</span></div>
+            </label>
+        </div>
+        <div class="col-4">
+            <label class="w-100 bet-option">
+                <input type="checkbox" name="selection" value="{{ triplet[1][0] }}" data-pair="waves" data-odds="{{ triplet[1][1] }}">
+                <div class="opt">{{ triplet[1][0] }} <span class="badge bg-info text-dark">{{ triplet[1][1] }}</span></div>
+            </label>
+        </div>
+        <div class="col-4">
+            <label class="w-100 bet-option">
+                <input type="checkbox" name="selection" value="{{ triplet[2][0] }}" data-pair="waves" data-odds="{{ triplet[2][1] }}">
+                <div class="opt">{{ triplet[2][0] }} <span class="badge bg-info text-dark">{{ triplet[2][1] }}</span></div>
+            </label>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <label class="form-label">Số tiền mỗi cửa (USD)</label>
+        <input name="stake" type="number" min="1" step="1" class="form-control" required>
+    </div>
+    <button class="btn btn-primary mt-3">Đặt cược</button>
+    <div id="pairHint" class="alert alert-warning mt-2 d-none"></div>
+</form>
+
+<div class="mt-3 text-center">
+    <a class="btn btn-outline-light" href="javascript:history.back()">TRỞ VỀ</a>
+</div>
+
+<script>
+    (function() {
+        const tEl = document.getElementById('_remain');
+        let t = parseInt((tEl && tEl.dataset && tEl.dataset.remaining) ? tEl.dataset.remaining : '0');
+        const cd = document.getElementById('countdown');
+        const tick = () => {
+            if (t < 0) return;
+            const m = String(Math.floor(t / 60)).padStart(2, '0');
+            const s = String(Math.floor(t % 60)).padStart(2, '0');
+            cd.textContent = m + ':' + s;
+            t--;
+            setTimeout(tick, 1000);
+        };
+        tick();
+
+        // Normalize any badge odds like "2.10" -> "2.1" on the client just in case
+        const normalizeOddsBadges = () => {
+            document.querySelectorAll('.bet-option .badge').forEach(el => {
+                const raw = (el.textContent || '').trim();
+                const num = parseFloat(raw);
+                if (!isNaN(num)) {
+                    // Use JS default string for numbers (trims trailing zeros), but keep up to 2 decimals for values like 1.98
+                    let s = num.toString();
+                    // Ensure at most 2 decimals are shown (avoid long floats like 2.8999999)
+                    if (/\.\d{3,}$/.test(s)) {
+                        s = (Math.round(num * 100) / 100).toString();
+                    }
+                    el.textContent = s;
+                }
+            });
+            // Also normalize data-odds attributes if present
+            document.querySelectorAll('input[name="selection"][data-odds]').forEach(el => {
+                const num = parseFloat(el.dataset.odds);
+                if (!isNaN(num)) {
+                    el.dataset.odds = (Math.round(num * 100) / 100).toString();
+                }
+            });
+        };
+        normalizeOddsBadges();
+
+        // Enforce: max 2 selections AND all selections must be in the same horizontal pair (same data-pair)
+        const boxes = Array.from(document.querySelectorAll('input[name="selection"]'));
+        const hintEl = document.getElementById('pairHint');
+        const updateHint = () => {
+            const chosen = boxes.filter(x => x.checked);
+            let msg = '';
+            if (chosen.length === 1) {
+                msg = 'Bạn đang chọn 1 cửa. (Tham khảo) Xác suất thắng ~50%.';
+            } else if (chosen.length === 2) {
+                const p0 = chosen[0].dataset.pair;
+                const p1 = chosen[1].dataset.pair;
+                const o0 = parseFloat(chosen[0].dataset.odds || '0');
+                if (p0 === p1 && o0 <= 2) {
+                    const lossPct = ((2 - o0) / 2) * 100;
+                    const fmt = (v) => (Math.round(v * 100) / 100).toString();
+                    msg = `Bạn chọn 2 cửa cùng một cặp (bù trừ). Với tỷ lệ ${fmt(o0)}, kỳ vọng lỗ khoảng ${lossPct.toFixed(1)}% tổng tiền.`;
+                } else if (p0 === p1) {
+                    msg = 'Bạn chọn 2 cửa cùng một cặp.';
+                }
+            }
+            if (msg) {
+                hintEl.textContent = msg;
+                hintEl.classList.remove('d-none');
+            } else {
+                hintEl.classList.add('d-none');
+            }
+        };
+        boxes.forEach(b => b.addEventListener('change', () => {
+            // Tentative selected
+            let chosen = boxes.filter(x => x.checked);
+            // If this is the first checked, accept and update
+            if (chosen.length === 0) {
+                updateHint();
+                return;
+            }
+            const pairToKeep = chosen[0].dataset.pair;
+            // Uncheck any selected not in the same pair (prevent vertical/cross-pair bets)
+            boxes.forEach(x => {
+                if (x.checked && x.dataset.pair !== pairToKeep) x.checked = false;
+            });
+            // Enforce max 2 within the same pair
+            chosen = boxes.filter(x => x.checked);
+            if (chosen.length > 2) {
+                b.checked = false;
+            }
+            // If user tried to cross pairs, show a short hint
+            const cross = boxes.some(x => x.checked && x.dataset.pair !== pairToKeep);
+            if (cross) {
+                hintEl.textContent = 'Chỉ được đặt trong cùng một hàng (1 cặp).';
+                hintEl.classList.remove('d-none');
+            }
+            updateHint();
+            normalizeOddsBadges();
+        }));
+        updateHint();
+    })();
+</script>
+{% endblock %}
