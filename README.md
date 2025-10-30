@@ -35,6 +35,21 @@ Important: Vercel’s filesystem is read‑only and ephemeral. SQLite will not p
 
 Static assets under `app/static/` are served directly by Vercel. All other routes are handled by the Flask app.
 
+## Deploy to Render (recommended for stable runtime)
+This repo includes a `render.yaml` blueprint and `Procfile` to run the app reliably with persistent storage.
+
+Steps:
+1) Push this repo to GitHub (done).
+2) Go to https://dashboard.render.com → New → Blueprint → connect this repo.
+3) Accept defaults; Render will create a Web Service with a persistent disk mounted at `/opt/render/project/src/data`.
+4) The app uses:
+	- `DATABASE_URL=sqlite:////opt/render/project/src/data/app.db` (persists across deploys)
+	- `UPLOAD_DIR=/opt/render/project/src/data/uploads` (user uploads persist)
+	- `SECRET_KEY` is auto-generated.
+5) First deploy takes a few minutes. After deploy:
+	- User site: your Render URL
+	- Admin: your Render URL + `/admin`
+
 ## Notes
 - Default language is Vietnamese. You can extend translations later via Flask-Babel.
  - Image background removal uses `rembg` if installed; otherwise uploads remain unchanged.

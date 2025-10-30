@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: casinomarinabaysands
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn -w 2 -k gthread -t 120 -b 0.0.0.0:$PORT run:app
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        value: sqlite:////opt/render/project/src/data/app.db
+      - key: UPLOAD_DIR
+        value: /opt/render/project/src/data/uploads
+    disk:
+      name: data
+      mountPath: /opt/render/project/src/data
+      sizeGB: 1

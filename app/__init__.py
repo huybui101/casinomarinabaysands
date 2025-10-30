@@ -34,7 +34,11 @@ def create_app():
     app.config["SQLALCHEMY_DATABASE_URI"] = db_uri
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["REMEMBER_COOKIE_DURATION"] = timedelta(days=14)
-    app.config["UPLOAD_FOLDER"] = os.path.join(app.root_path, "static", "uploads")
+    # Uploads: allow overriding to a persistent folder via env (for Render/Railway)
+    upload_dir = os.environ.get("UPLOAD_DIR")
+    if not upload_dir:
+        upload_dir = os.path.join(app.root_path, "static", "uploads")
+    app.config["UPLOAD_FOLDER"] = upload_dir
     # Make template edits visible without full server restart during development
     app.config["TEMPLATES_AUTO_RELOAD"] = True
     os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
