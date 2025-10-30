@@ -24,4 +24,12 @@ app = create_app()
 
 @app.get("/healthz")
 def healthz():
-    return "ok", 200
+    try:
+        # verify DB works
+        from app import db  # lazy import to avoid cycles at import time
+        with app.app_context():
+            db.session.execute("SELECT 1")
+        return "ok", 200
+    except Exception as e:
+        # surface a concise error for debugging deploys
+        return f"err:{type(e).__name__}", 500
