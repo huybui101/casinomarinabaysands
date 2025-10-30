@@ -1,0 +1,12 @@
+{% extends 'layout.html' %} {% block content %}
+<h4 class="mb-3">Nạp tiền</h4>
+<div class="card bg-secondary bg-opacity-25 border-0 p-3">
+    {% if settings and settings.deposit_image_path %}
+    <div class="text-center mb-3">
+        <img src="{{ settings.deposit_image_path }}" style="max-width:100%;border-radius:8px;">
+    </div>
+    {% endif %}
+    <p>Vui lòng liên hệ hỗ trợ để được hướng dẫn nạp tiền nhanh chóng.</p>
+    <a class="btn btn-primary" href="{{ settings.telegram_url or '#' }}" target="_blank">Liên hệ Telegram</a>
+</div>
+{% endblock %}

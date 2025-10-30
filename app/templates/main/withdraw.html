@@ -1,6 +1,10 @@
 {% extends 'layout.html' %} {% block content %}
 <h4 class="mb-3">Rút tiền</h4>
-{% if error %}
+{% if settings and settings.withdraw_image_path %}
+<div class="card bg-secondary bg-opacity-25 border-0 p-3 mb-3 text-center">
+    <img src="{{ settings.withdraw_image_path }}" style="max-width:100%; border-radius:8px;">
+</div>
+{% endif %} {% if error %}
 <div class="alert alert-danger">{{ error }}</div>{% endif %} {% if success %}
 <div class="alert alert-success">{{ success }}</div>{% endif %}
 <form method="post" class="card bg-secondary bg-opacity-25 border-0 p-3">

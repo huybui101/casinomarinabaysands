@@ -157,6 +157,7 @@ def settings():
     settings = SiteSetting.query.first()
     # Load uploaded images to allow choosing a logo from the media library
     logo_choices = UploadedImage.query.filter_by(usage='logo').order_by(UploadedImage.created_at.desc()).all()
+    ui_images = UploadedImage.query.order_by(UploadedImage.created_at.desc()).all()
     if request.method == 'POST':
         settings.site_name = request.form.get('site_name')
         settings.primary_color = request.form.get('primary_color')
@@ -175,10 +176,42 @@ def settings():
                 except Exception:
                     pass
 
+        # Optional: homepage Deposit/Withdraw images
+        dep_img = request.form.get('deposit_image_path')
+        wdr_img = request.form.get('withdraw_image_path')
+        settings.deposit_image_path = dep_img or None
+        settings.withdraw_image_path = wdr_img or None
+
         db.session.commit()
         flash('Đã lưu cài đặt', 'success')
         return redirect(url_for('admin.settings'))
-    return render_template('admin/settings.html', settings=settings, logos=logo_choices)
+    return render_template('admin/settings.html', settings=settings, logos=logo_choices, ui_images=ui_images)
+
+
+@admin_bp.route('/users/<int:user_id>/adjust', methods=['POST'])
+@login_required
+@admin_required
+def adjust_balance(user_id: int):
+    u = User.query.get_or_404(user_id)
+    try:
+        amount = float(request.form.get('amount') or '0')
+    except Exception:
+        amount = 0.0
+    action = request.form.get('action')  # 'credit' or 'debit'
+    note = (request.form.get('note') or '').strip()
+    if amount <= 0:
+        flash('Số tiền phải lớn hơn 0', 'danger')
+        return redirect(url_for('admin.users', q=str(u.id)))
+    delta = amount if action == 'credit' else -amount
+    if action == 'debit' and (u.balance or 0) + delta < 0:
+        flash('Số dư không đủ để trừ', 'danger')
+        return redirect(url_for('admin.users', q=str(u.id)))
+    u.balance = float((u.balance or 0.0) + delta)
+    t = Transaction(user_id=u.id, ttype='ADMIN_ADJUST', amount=amount, status='SUCCESS', note=f"{action.upper()}: {note}")
+    db.session.add(t)
+    db.session.commit()
+    flash('Đã cập nhật số dư người dùng', 'success')
+    return redirect(url_for('admin.users', q=str(u.id)))
 
 
 @admin_bp.route('/games', methods=['GET', 'POST'])

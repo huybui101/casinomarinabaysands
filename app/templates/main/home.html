@@ -27,10 +27,26 @@
 </div>
 
 <div class="row g-2 mb-3">
-    <div class="col-3"><a class="quick-btn" href="{{ url_for('main.deposit') }}">NẠP TIỀN</a></div>
-    <div class="col-3"><a class="quick-btn" href="{{ url_for('main.withdraw') }}">RÚT SỐ DƯ</a></div>
-    <div class="col-3"><a class="quick-btn" href="{{ url_for('main.history_bets') }}">LỊCH SỬ CƯỢC</a></div>
-    <div class="col-3"><a class="quick-btn" href="{{ url_for('main.account_info') }}">DỊCH VỤ TRỰC TUYẾN</a></div>
+    <div class="col-6">
+        <a class="d-block" href="{{ url_for('main.deposit') }}">
+            {% if settings and settings.deposit_image_path %}
+            <img src="{{ settings.deposit_image_path }}" class="w-100 rounded" style="height:90px; object-fit:cover;">
+            {% else %}
+            <div class="quick-btn text-center">NẠP TIỀN</div>
+            {% endif %}
+        </a>
+    </div>
+    <div class="col-6">
+        <a class="d-block" href="{{ url_for('main.withdraw') }}">
+            {% if settings and settings.withdraw_image_path %}
+            <img src="{{ settings.withdraw_image_path }}" class="w-100 rounded" style="height:90px; object-fit:cover;">
+            {% else %}
+            <div class="quick-btn text-center">RÚT SỐ DƯ</div>
+            {% endif %}
+        </a>
+    </div>
+    <div class="col-6"><a class="quick-btn" href="{{ url_for('main.history_bets') }}">LỊCH SỬ CƯỢC</a></div>
+    <div class="col-6"><a class="quick-btn" href="{{ url_for('main.account_info') }}">DỊCH VỤ TRỰC TUYẾN</a></div>
 </div>
 
 <h5 class="mb-2">Trò chơi</h5>

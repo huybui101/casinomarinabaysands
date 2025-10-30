@@ -10,6 +10,9 @@ class SiteSetting(db.Model):
     primary_color = db.Column(db.String(20), default="#6f42c1")
     telegram_url = db.Column(db.String(255), default="https://t.me/xiaobaolacky")
     language_default = db.Column(db.String(10), default="vi")
+    # Optional UI images
+    deposit_image_path = db.Column(db.String(255), nullable=True)
+    withdraw_image_path = db.Column(db.String(255), nullable=True)
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)

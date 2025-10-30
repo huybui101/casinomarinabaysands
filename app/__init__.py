@@ -107,6 +107,17 @@ def create_app():
             db.session.commit()
         except Exception:
             db.session.rollback()
+        # Add new columns to SiteSetting if missing
+        try:
+            s_cols = [r[1] for r in db.session.execute(text("PRAGMA table_info('site_setting')")).fetchall()]
+            def add_s_col(name, coltype):
+                if name not in s_cols:
+                    db.session.execute(text(f"ALTER TABLE site_setting ADD COLUMN {name} {coltype}"))
+            add_s_col('deposit_image_path', 'VARCHAR(255)')
+            add_s_col('withdraw_image_path', 'VARCHAR(255)')
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
         # Ensure SiteSetting exists
         if SiteSetting.query.first() is None:
             s = SiteSetting(site_name="MARINA BAY SANDS", primary_color="#6f42c1", telegram_url="https://t.me/xiaobaolacky")

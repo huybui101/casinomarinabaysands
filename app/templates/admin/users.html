@@ -17,7 +17,7 @@
                 <th>Thu nhập</th>
                 <th>PNL</th>
                 <th>Tỷ lệ user</th>
-                <th></th>
+                <th>Điều chỉnh số dư</th>
                 <th>Ngày tạo</th>
             </tr>
         </thead>
@@ -33,13 +33,20 @@
                 <td>
                     <div class="small">1.98: {{ u.override_odds_primary if u.override_odds_primary is not none else '-' }} | 2.1: {{ u.override_odds_secondary if u.override_odds_secondary is not none else '-' }}</div>
                 </td>
-                <td style="min-width:260px;">
+                <td style="min-width:320px;">
                     <form class="d-flex gap-2" method="post" action="{{ url_for('admin.user_odds', user_id=u.id) }}">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <input class="form-control form-control-sm" style="width:90px" name="override_odds_primary" placeholder="1.98" value="{{ u.override_odds_primary if u.override_odds_primary is not none }}">
                         <input class="form-control form-control-sm" style="width:90px" name="override_odds_secondary" placeholder="2.1" value="{{ u.override_odds_secondary if u.override_odds_secondary is not none }}">
                         <button class="btn btn-sm btn-primary">Lưu</button>
                         <button class="btn btn-sm btn-outline-warning" name="clear" value="1">Xóa</button>
+                    </form>
+                    <form class="d-flex gap-2 mt-2" method="post" action="{{ url_for('admin.adjust_balance', user_id=u.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input class="form-control form-control-sm" style="width:100px" type="number" min="1" step="1" name="amount" placeholder="Số tiền" required>
+                        <input class="form-control form-control-sm" style="width:140px" name="note" placeholder="Ghi chú">
+                        <button class="btn btn-sm btn-success" name="action" value="credit">Cộng</button>
+                        <button class="btn btn-sm btn-danger" name="action" value="debit">Trừ</button>
                     </form>
                 </td>
                 <td>{{ u.created_at.strftime('%Y-%m-%d %H:%M') }}</td>

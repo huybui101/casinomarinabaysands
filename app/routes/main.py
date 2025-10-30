@@ -131,15 +131,17 @@ def settings():
 @main_bp.route('/deposit')
 @login_required
 def deposit():
-    # redirect to telegram
+    # Show deposit page with optional image and Telegram link
     from ..models import SiteSetting
     settings = SiteSetting.query.first()
-    return redirect(settings.telegram_url or 'https://t.me/xiaobaolacky')
+    return render_template('main/deposit.html', settings=settings)
 
 
 @main_bp.route('/withdraw', methods=['GET', 'POST'])
 @login_required
 def withdraw():
+    from ..models import SiteSetting
+    settings = SiteSetting.query.first()
     error = None
     success = None
     if request.method == 'POST':
@@ -157,7 +159,7 @@ def withdraw():
             db.session.add(t)
             db.session.commit()
             success = 'Yêu cầu rút tiền đã tạo thành công'
-    return render_template('main/withdraw.html', error=error, success=success)
+    return render_template('main/withdraw.html', error=error, success=success, settings=settings)
 
 
 @main_bp.route('/history/bets')
