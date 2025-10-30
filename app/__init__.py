@@ -19,9 +19,19 @@ def create_app():
 
     # Basic config
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-key")
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
-        "DATABASE_URL", f"sqlite:///{os.path.join(os.path.dirname(__file__), '..', 'app.db')}"
-    )
+    # Database: default to local SQLite, but if the path is not writable (e.g., Vercel),
+    # and DATABASE_URL is not provided, automatically fall back to /tmp (ephemeral).
+    default_db_path = os.path.join(os.path.dirname(__file__), '..', 'app.db')
+    default_uri = f"sqlite:///{default_db_path}"
+    db_uri = os.environ.get("DATABASE_URL", default_uri)
+    if db_uri.startswith("sqlite:///") and not os.environ.get("DATABASE_URL"):
+        try:
+            target_dir = os.path.dirname(default_db_path)
+            if not os.access(target_dir, os.W_OK):
+                db_uri = "sqlite:////tmp/app.db"
+        except Exception:
+            db_uri = "sqlite:////tmp/app.db"
+    app.config["SQLALCHEMY_DATABASE_URI"] = db_uri
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["REMEMBER_COOKIE_DURATION"] = timedelta(days=14)
     app.config["UPLOAD_FOLDER"] = os.path.join(app.root_path, "static", "uploads")
