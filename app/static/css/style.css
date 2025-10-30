@@ -102,6 +102,23 @@ body {
     box-shadow: 0 8px 16px rgba(0, 0, 0, .3)
 }
 
+
+/* Large action tile fallback when no image is configured */
+
+.hero-tile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 90px;
+    border-radius: 12px;
+    background: linear-gradient(145deg, rgba(111, 66, 193, .9), #1a1a1a);
+    color: #fff;
+    font-weight: 900;
+    letter-spacing: .04em;
+    text-decoration: none;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, .35);
+}
+
 .avatar {
     width: 88px;
     height: 88px;
